@@ -9,6 +9,6 @@
     <version>1.0-SNAPSHOT</version>
     <name>elasticsearch-learning</name>
     <modules>
-        <module>elasticsearch-highlevel-client</module>
+        <module>elasticsearcl-client</module>
     </modules>
 </project>
