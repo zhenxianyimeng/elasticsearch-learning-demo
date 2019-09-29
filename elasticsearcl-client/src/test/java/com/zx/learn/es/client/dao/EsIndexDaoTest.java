@@ -7,9 +7,18 @@ import cn.hutool.core.text.csv.CsvRow;
 import cn.hutool.core.text.csv.CsvUtil;
 import com.alibaba.fastjson.JSON;
 import com.zx.learn.es.client.model.Rating;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -25,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,8 +53,9 @@ import static org.junit.Assert.*;
 @SpringBootTest
 public class EsIndexDaoTest {
 
-    @Autowired
     private RestHighLevelClient client;
+
+
 
     @Autowired
     private EsIndexDao esIndexDao;
@@ -103,7 +114,7 @@ public class EsIndexDaoTest {
     @Test
     public void addDocument() throws IOException {
         Rating rating = new Rating(1L, "很喜欢", 15905L, 452609L, 5L, new Date(1380988800L), null);
-        boolean success = esIndexDao.addDocument("ratings", "1", rating);
+        boolean success = esIndexDao.addDocument("my_ratings", "1", rating);
         Assert.assertEquals(success, success);
     }
 
@@ -144,8 +155,9 @@ public class EsIndexDaoTest {
                     Rating rating = new Rating(Long.valueOf(i), arrs[4], Long.valueOf(arrs[0]),Long.valueOf(arrs[1]),Long.valueOf(arrs[2]),
                             new Date(Long.valueOf(arrs[3])), arrs[5].replace("\"",""));
                     esIndexDao.addDocument("ratings", rating.getId()+"", rating);
+                    //add es
                 }catch (Exception e1){
-
+                    e1.printStackTrace();
                 }
 
             }
@@ -163,7 +175,7 @@ public class EsIndexDaoTest {
                 "  }}\n" +
                 "}";
 
-        SearchRequest searchRequest = new SearchRequest("ratings");
+        SearchRequest searchRequest = new SearchRequest("my_ratings");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 
